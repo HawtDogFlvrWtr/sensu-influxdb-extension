@@ -33,8 +33,11 @@ module Sensu::Extension
       host = event['client']['name']
       event['check']['influxdb']['database'] ||= conf['database']
       protocol = conf.fetch('ssl_enable', false) ? 'https' : 'http'
+      
+      # NOTE: Clean possible carriage returns for windows outputs or body won't be generated
+      eventOutput = event['check']['output'].gsub!(/\r/, '')
 
-      event['check']['output'].split(/\n/).each do |line|
+      eventOutput.split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
         values = "value=#{value.to_f}"
 
